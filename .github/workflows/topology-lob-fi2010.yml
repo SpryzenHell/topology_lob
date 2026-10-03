@@ -14,7 +14,7 @@ on:
 jobs:
   fi2010:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -22,10 +22,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install constrained research environment
+        working-directory: research/topology_lob
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e "research/topology_lob[tda,dev]"
+          python -m pip install -c constraints.txt -e ".[tda,dev]"
 
       - name: Unit tests
         run: pytest -q research/topology_lob/tests
@@ -35,11 +36,12 @@ jobs:
           mkdir -p /tmp/fi2010
           curl -L --fail --retry 3 -o /tmp/fi2010/data.zip             https://raw.githubusercontent.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books/master/data/data.zip
           unzip -q /tmp/fi2010/data.zip -d /tmp/fi2010
+          find /tmp/fi2010 -maxdepth 2 -type f -name '*DecPre*' -print
 
       - name: Run exact real-data TDA benchmark
         working-directory: research/topology_lob
         run: |
-          python scripts/run_fi2010_benchmark.py             --train /tmp/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt             --test               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt             --require-gtda             --tda-stride 500             --out results/fi2010_benchmark.json
+          python scripts/run_fi2010_benchmark.py             --train /tmp/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt             --test               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt             --require-gtda             --tda-stride 1000             --out results/fi2010_benchmark.json
 
       - name: Upload benchmark report
         uses: actions/upload-artifact@v4
