@@ -83,3 +83,14 @@ def test_focal_prediction_is_explicitly_logistic():
     assert np.isfinite(margin).all()
     assert ((probability >= 0) & (probability <= 1)).all()
     assert not np.array_equal(np.round(margin, 6), np.round(probability, 6))
+
+
+def test_vr_triangle_kills_cycle():
+    from topology_lob import persistent_features
+    square = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+    feats, meta = persistent_features(
+        [square], np.array([1.01, 1.5]), require_gtda=False
+    )
+    assert meta["backend"] == "exact-vr-gf2-fallback"
+    assert feats[0, 2] == 1
+    assert feats[0, 3] == 0

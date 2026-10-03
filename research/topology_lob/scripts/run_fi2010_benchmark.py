@@ -54,6 +54,17 @@ def evaluate_signal(model, X, y, future):
     return base, probability, margin
 
 
+def segment_forward_returns(log_mid: np.ndarray, boundaries: list[tuple[int, int]], horizon: int) -> np.ndarray:
+    future = np.full(len(log_mid), np.nan)
+    for start, end in boundaries:
+        if end - start <= horizon:
+            continue
+        future[start:end-horizon] = (
+            log_mid[start+horizon:end] - log_mid[start:end-horizon]
+        )
+    return future
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Leakage-aware FI-2010 train-7/test-8,9,10 benchmark"
@@ -121,11 +132,13 @@ def main():
         topo_df.to_numpy(float),
     ])
 
-    future = np.full(len(combined), np.nan)
     mid_log = micro["log_mid"].to_numpy()
-    future[:-args.horizon] = (
-        mid_log[args.horizon:] - mid_log[:-args.horizon]
-    )
+    boundaries = []
+    cursor = 0
+    for frame in [train, *tests]:
+        boundaries.append((cursor, cursor + len(frame)))
+        cursor += len(frame)
+    future = segment_forward_returns(mid_log, boundaries, args.horizon)
     y = np.full(len(combined), -1)
     finite = np.isfinite(future)
     y[finite] = (

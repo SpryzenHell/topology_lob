@@ -86,9 +86,13 @@ def prepare(args):
         topology, index=topo_index, columns=topo_meta["feature_names"]
     ).reindex(range(len(combined))).ffill()
 
-    future = np.full(len(combined), np.nan)
     logs = micro["log_mid"].to_numpy()
-    future[:-args.horizon] = logs[args.horizon:] - logs[:-args.horizon]
+    boundaries = []
+    cursor = 0
+    for frame in [train, *tests]:
+        boundaries.append((cursor, cursor + len(frame)))
+        cursor += len(frame)
+    future = segment_forward_returns(logs, boundaries, args.horizon)
     y = np.full(len(combined), -1)
     finite = np.isfinite(future)
     y[finite] = (future[finite] > args.label_threshold).astype(int)
@@ -168,6 +172,17 @@ def prepare(args):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(results, indent=2))
     print(json.dumps(results, indent=2))
+
+
+def segment_forward_returns(log_mid: np.ndarray, boundaries: list[tuple[int, int]], horizon: int) -> np.ndarray:
+    future = np.full(len(log_mid), np.nan)
+    for start, end in boundaries:
+        if end - start <= horizon:
+            continue
+        future[start:end-horizon] = (
+            log_mid[start+horizon:end] - log_mid[start:end-horizon]
+        )
+    return future
 
 
 def main():

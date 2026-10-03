@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import itertools
 import time
 
 import numpy as np
@@ -211,37 +212,87 @@ def _entropy(values):
     return float(-(q * np.log(q)).sum())
 
 
+def _gf2_rank(matrix):
+    """Rank of a binary matrix over GF(2), for the small-cloud fallback."""
+    if matrix.size == 0:
+        return 0
+    a = np.asarray(matrix, dtype=np.uint8).copy()
+    rows, cols = a.shape
+    rank = 0
+    for col in range(cols):
+        piv = np.flatnonzero(a[rank:, col])
+        if len(piv) == 0:
+            continue
+        pivot = rank + int(piv[0])
+        if pivot != rank:
+            a[[rank, pivot]] = a[[pivot, rank]]
+        for row in range(rows):
+            if row != rank and a[row, col]:
+                a[row] ^= a[rank]
+        rank += 1
+        if rank == rows:
+            break
+    return rank
+
+
+def _vr_mod2_betti(cloud, radius):
+    """Exact H0/H1 Betti numbers for a small Vietoris-Rips clique complex."""
+    points = np.asarray(cloud, dtype=float)
+    n = len(points)
+    if n == 0:
+        return 0, 0
+
+    dist = np.sqrt(((points[:, None, :] - points[None, :, :]) ** 2).sum(-1))
+    edges = [
+        (i, j)
+        for i in range(n)
+        for j in range(i + 1, n)
+        if dist[i, j] <= radius
+    ]
+
+    boundary_1 = np.zeros((n, len(edges)), dtype=np.uint8)
+    for e, (i, j) in enumerate(edges):
+        boundary_1[i, e] = 1
+        boundary_1[j, e] = 1
+    rank_b1 = _gf2_rank(boundary_1)
+
+    adjacency = np.zeros((n, n), dtype=bool)
+    for i, j in edges:
+        adjacency[i, j] = adjacency[j, i] = True
+
+    triangles = [
+        triple
+        for triple in itertools.combinations(range(n), 3)
+        if adjacency[triple[0], triple[1]]
+        and adjacency[triple[0], triple[2]]
+        and adjacency[triple[1], triple[2]]
+    ]
+    if triangles:
+        edge_index = {edge: idx for idx, edge in enumerate(edges)}
+        boundary_2 = np.zeros((len(edges), len(triangles)), dtype=np.uint8)
+        for t, (i, j, k) in enumerate(triangles):
+            for edge in ((i, j), (i, k), (j, k)):
+                boundary_2[edge_index[tuple(sorted(edge))], t] = 1
+        rank_b2 = _gf2_rank(boundary_2)
+    else:
+        rank_b2 = 0
+
+    beta0 = n - rank_b1
+    beta1 = (len(edges) - rank_b1) - rank_b2
+    return max(beta0, 0), max(beta1, 0)
+
+
 def _fallback_topology(cloud, radii):
-    n = len(cloud)
-    dist = np.sqrt(((cloud[:, None, :] - cloud[None, :, :]) ** 2).sum(-1))
+    """Exact small-cloud VR H0/H1 fallback when Giotto-TDA is unavailable."""
     betti0, betti1 = [], []
-
     for radius in radii:
-        parent = list(range(n))
-        components = n
-        edges = 0
+        b0, b1 = _vr_mod2_betti(cloud, float(radius))
+        betti0.append(b0)
+        betti1.append(b1)
 
-        def find(i):
-            while parent[i] != i:
-                parent[i] = parent[parent[i]]
-                i = parent[i]
-            return i
-
-        for i in range(n):
-            for j in range(i + 1, n):
-                if dist[i, j] <= radius:
-                    edges += 1
-                    a, b = find(i), find(j)
-                    if a != b:
-                        parent[a] = b
-                        components -= 1
-
-        betti0.append(components)
-        betti1.append(max(0, edges - n + components))
-
-    nearest = np.partition(dist + np.eye(n) * 1e9, 1, axis=1)[:, 1]
+    dist = np.sqrt(((cloud[:, None, :] - cloud[None, :, :]) ** 2).sum(-1))
+    nearest = np.partition(dist + np.eye(len(cloud)) * 1e9, 1, axis=1)[:, 1]
     return np.asarray(betti0), np.asarray(betti1), float(np.quantile(nearest, 0.9))
-
 
 def persistent_features(clouds, radii, require_gtda=False, n_jobs=-1):
     try:
