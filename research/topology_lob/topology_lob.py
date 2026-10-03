@@ -509,7 +509,7 @@ def _build_matrix(cfg):
 
     raw_train_end = int(len(raw) * (1 - test_fraction)) - purge
     d, stationarity = select_stationary_d(
-        micro.log_mid.to_numpy(),
+        micro.log_mid.to_numpy()[:raw_train_end],
         np.asarray(cfg.get("candidate_d", np.linspace(0, 1, 11))),
         float(cfg.get("adf_p", 0.05)),
         ffd_width,

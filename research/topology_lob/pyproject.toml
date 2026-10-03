@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "topology-lob-research"
-version = "0.3.1"
+version = "0.3.2"
 description = "Level-2 LOB topology, fractional differentiation, and custom focal-loss research pipeline"
 requires-python = ">=3.10,<3.13"
 dependencies = [
@@ -24,4 +24,4 @@ tda = ["giotto-tda==0.6.2"]
 dev = ["pytest>=8,<9"]
 
 [tool.setuptools]
-py-modules = ["topology_lob"]
+py-modules = ["topology_lob", "fi2010"]
