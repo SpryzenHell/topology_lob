@@ -35,8 +35,10 @@ def read_canonical(path: str | Path) -> pd.DataFrame:
 def evaluate_signal(model, X, y, future):
     """Evaluate both probability and raw XGBoost margin as signals."""
     matrix = xgb.DMatrix(X)
-    probability = model.predict(matrix)
     margin = model.predict(matrix, output_margin=True)
+    probability = 1 / (1 + np.exp(-np.clip(margin, -40, 40)))
+    if not np.isfinite(probability).all() or np.any(probability < 0) or np.any(probability > 1):
+        raise RuntimeError("Custom-objective probability transform left [0,1]")
 
     base, _ = evaluate(model, X, y, future)
     base["margin_pearson_ic"] = (
