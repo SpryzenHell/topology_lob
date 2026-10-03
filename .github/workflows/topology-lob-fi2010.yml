@@ -44,8 +44,15 @@ jobs:
         run: |
           python scripts/run_fi2010_benchmark.py             --train /tmp/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt             --test               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt             --require-gtda             --tda-stride 1000             --out results/fi2010_benchmark.json
 
-      - name: Upload benchmark report
+      - name: Run real-data feature ablation
+        working-directory: research/topology_lob
+        run: |
+          python scripts/run_fi2010_ablation.py             --train /tmp/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt             --test               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt             --require-gtda             --tda-stride 1000             --out results/fi2010_ablation.json
+
+      - name: Upload benchmark reports
         uses: actions/upload-artifact@v4
         with:
           name: topology-lob-fi2010-results
-          path: research/topology_lob/results/fi2010_benchmark.json
+          path: |
+            research/topology_lob/results/fi2010_benchmark.json
+            research/topology_lob/results/fi2010_ablation.json

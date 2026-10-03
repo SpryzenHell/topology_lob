@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -28,6 +29,26 @@ from topology_lob import (
 def read_canonical(path: str | Path) -> pd.DataFrame:
     frame = raw40_to_canonical(load_raw(path).features)
     return frame
+
+
+def evaluate_signal(model, X, y, future):
+    """Evaluate both probability and raw XGBoost margin as signals."""
+    matrix = xgb.DMatrix(X)
+    probability = model.predict(matrix)
+    margin = model.predict(matrix, output_margin=True)
+
+    base, _ = evaluate(model, X, y, future)
+    base["margin_pearson_ic"] = (
+        float(np.corrcoef(margin, future)[0, 1])
+        if np.std(margin) and np.std(future) else 0.0
+    )
+    base["margin_rank_ic"] = (
+        float(spearmanr(margin, future).statistic)
+        if np.std(margin) and np.std(future) else 0.0
+    )
+    base["probability_mean"] = float(np.mean(probability))
+    base["margin_mean"] = float(np.mean(margin))
+    return base, probability, margin
 
 
 def main():
@@ -151,6 +172,9 @@ def main():
     focal = fit_focal_xgb(X_train, y_train, seed=2010)
     baseline = fit_logloss_xgb(X_train, y_train, seed=2010)
 
+    pooled_probability = []
+    pooled_margin = []
+    pooled_future = []
     cursor = train_events
     for day_idx, test_frame in enumerate(tests, start=8):
         end = cursor + len(test_frame)
@@ -159,18 +183,21 @@ def main():
         )
         if not len(day_positions):
             raise RuntimeError(f"No valid model rows remained for test day {day_idx}")
-        focal_metrics, _ = evaluate(
+        focal_metrics, focal_probability, focal_margin = evaluate_signal(
             focal,
             X[day_positions],
             yy[day_positions],
             rr[day_positions],
         )
-        baseline_metrics, _ = evaluate(
+        baseline_metrics, _, _ = evaluate_signal(
             baseline,
             X[day_positions],
             yy[day_positions],
             rr[day_positions],
         )
+        pooled_probability.append(focal_probability)
+        pooled_margin.append(focal_margin)
+        pooled_future.append(rr[day_positions])
         results["days"].append({
             "day": day_idx,
             "events": int(len(test_frame)),
@@ -182,11 +209,23 @@ def main():
 
     ics = [d["focal"]["pearson_ic"] for d in results["days"]]
     rank_ics = [d["focal"]["rank_ic"] for d in results["days"]]
+    margin_ics = [d["focal"]["margin_pearson_ic"] for d in results["days"]]
+    margin_rank_ics = [d["focal"]["margin_rank_ic"] for d in results["days"]]
+    pooled_probability = np.concatenate(pooled_probability)
+    pooled_margin = np.concatenate(pooled_margin)
+    pooled_future = np.concatenate(pooled_future)
     results["aggregate"] = {
         "focal_mean_pearson_ic": float(np.mean(ics)),
         "focal_std_pearson_ic": float(np.std(ics, ddof=1)) if len(ics) > 1 else 0.0,
         "focal_mean_rank_ic": float(np.mean(rank_ics)),
         "focal_std_rank_ic": float(np.std(rank_ics, ddof=1)) if len(rank_ics) > 1 else 0.0,
+        "focal_mean_margin_pearson_ic": float(np.mean(margin_ics)),
+        "focal_std_margin_pearson_ic": float(np.std(margin_ics, ddof=1)) if len(margin_ics) > 1 else 0.0,
+        "focal_mean_margin_rank_ic": float(np.mean(margin_rank_ics)),
+        "focal_std_margin_rank_ic": float(np.std(margin_rank_ics, ddof=1)) if len(margin_rank_ics) > 1 else 0.0,
+        "focal_pooled_probability_pearson_ic": float(np.corrcoef(pooled_probability, pooled_future)[0, 1]),
+        "focal_pooled_margin_pearson_ic": float(np.corrcoef(pooled_margin, pooled_future)[0, 1]),
+        "focal_pooled_margin_rank_ic": float(spearmanr(pooled_margin, pooled_future).statistic),
     }
 
     output = Path(args.out)
