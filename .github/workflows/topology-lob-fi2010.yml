@@ -29,7 +29,8 @@ jobs:
           python -m pip install -c constraints.txt -e ".[tda,dev]"
 
       - name: Unit tests
-        run: pytest -q research/topology_lob/tests
+        working-directory: research/topology_lob
+        run: pytest -q --confcutdir=. tests
 
       - name: Download FI-2010 Decimal-Precision benchmark
         run: |
