@@ -477,11 +477,9 @@ def evaluate(model, X, y, future):
         float(np.corrcoef(probability, future)[0, 1])
         if np.std(probability) and np.std(future) else 0.0
     )
+    from scipy.stats import spearmanr
     rank_ic = (
-        float(np.corrcoef(
-            np.argsort(np.argsort(probability)),
-            np.argsort(np.argsort(future)),
-        )[0, 1])
+        float(spearmanr(probability, future).statistic)
         if np.std(probability) and np.std(future) else 0.0
     )
     return {
