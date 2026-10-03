@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xgboost as xgb
 from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
