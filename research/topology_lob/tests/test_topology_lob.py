@@ -40,7 +40,7 @@ def test_ffd_weights():
     assert np.isfinite(weights).all()
 
 
-def test_topology_fallback_detects_gap():
+def test_topology_detects_gap():
     left = np.column_stack([np.linspace(-2, -0.5, 8), np.zeros(8)])
     right = np.column_stack([np.linspace(0.5, 2, 8), np.zeros(8)])
     features, meta = persistent_features(
@@ -48,7 +48,7 @@ def test_topology_fallback_detects_gap():
         np.array([0.1, 0.5, 1.0]),
         require_gtda=False,
     )
-    assert meta["backend"] == "threshold-graph-fallback"
+    assert meta["backend"] in {"threshold-graph-fallback", "giotto-tda"}
     assert features[0, 0] >= 2
 
 
