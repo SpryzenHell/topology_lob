@@ -1,0 +1,44 @@
+name: topology-lob-fi2010
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "research/topology_lob/**"
+      - ".github/workflows/topology-lob-fi2010.yml"
+
+jobs:
+  fi2010:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e "research/topology_lob[tda,dev]"
+
+      - name: Unit tests
+        run: pytest -q research/topology_lob/tests
+
+      - name: Download FI-2010 Decimal-Precision benchmark
+        run: |
+          mkdir -p /tmp/fi2010
+          curl -L --fail --retry 3 -o /tmp/fi2010/data.zip             https://raw.githubusercontent.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books/master/data/data.zip
+          unzip -q /tmp/fi2010/data.zip -d /tmp/fi2010
+
+      - name: Run exact real-data TDA benchmark
+        working-directory: research/topology_lob
+        run: |
+          python scripts/run_fi2010_benchmark.py             --train /tmp/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt             --test               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt               /tmp/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt             --require-gtda             --tda-stride 500             --out results/fi2010_benchmark.json
+
+      - name: Upload benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: topology-lob-fi2010-results
+          path: research/topology_lob/results/fi2010_benchmark.json
