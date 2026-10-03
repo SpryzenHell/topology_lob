@@ -36,8 +36,8 @@ def corr(a, b):
 
 def evaluate_model(model, X, y, future):
     dm = xgb.DMatrix(X)
-    prob = model.predict(dm)
     margin = model.predict(dm, output_margin=True)
+    prob = 1 / (1 + np.exp(-np.clip(margin, -40, 40)))
     roc = None
     if np.unique(y).size == 2:
         from sklearn.metrics import roc_auc_score

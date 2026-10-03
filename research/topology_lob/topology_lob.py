@@ -471,7 +471,8 @@ def fit_logloss_xgb(X, y, seed=2025, ratio=0.35):
 def evaluate(model, X, y, future):
     if len(y) == 0:
         raise ValueError("empty evaluation set")
-    probability = model.predict(xgb.DMatrix(X))
+    margin = model.predict(xgb.DMatrix(X), output_margin=True)
+    probability = 1 / (1 + np.exp(-np.clip(margin, -40, 40)))
     roc = float(roc_auc_score(y, probability)) if np.unique(y).size == 2 else None
     pearson_ic = (
         float(np.corrcoef(probability, future)[0, 1])
@@ -489,6 +490,8 @@ def evaluate(model, X, y, future):
         "pearson_ic": pearson_ic,
         "rank_ic": rank_ic,
         "positive_rate": float(y.mean()),
+        "margin_mean": float(np.mean(margin)),
+        "probability_mean": float(np.mean(probability)),
     }, probability
 
 

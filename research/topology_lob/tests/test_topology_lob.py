@@ -7,6 +7,7 @@ from topology_lob import (
     fractional_diff_cpu,
     focal_grad_hess,
     focal_loss_value,
+    fit_focal_xgb,
     make_synthetic_lob,
     persistent_features,
     validate_lob,
@@ -70,3 +71,15 @@ def test_focal_gradient_against_finite_difference():
             / (2 * eps) * 3
         )
     np.testing.assert_allclose(grad, numeric, rtol=2e-4, atol=2e-5)
+
+
+def test_focal_prediction_is_explicitly_logistic():
+    df = make_synthetic_lob(500, 10, 3)
+    feature = df["bid_size_1"].to_numpy().reshape(-1, 1)
+    y = (np.arange(len(df)) % 5 == 0).astype(int)
+    model = fit_focal_xgb(feature[:400], y[:400], seed=11)
+    margin = model.predict(xgb.DMatrix(feature[400:]), output_margin=True)
+    probability = 1 / (1 + np.exp(-np.clip(margin, -40, 40)))
+    assert np.isfinite(margin).all()
+    assert ((probability >= 0) & (probability <= 1)).all()
+    assert not np.array_equal(np.round(margin, 6), np.round(probability, 6))
