@@ -1,48 +1,54 @@
 # Topology LOB — L2 Liquidity Topology Research Engine
 
-Topology LOB is an end-to-end quantitative research pipeline for the project specification: Level-2 liquidity geometry → Vietoris–Rips persistence → Betti features → fractional differentiation → custom XGBoost Focal Loss → purged OOS / walk-forward evaluation.
+This application implements the three technical claims in the project brief as one reproducible research pipeline.
 
-## What is implemented
+1. Topological Data Analysis
+   L2 snapshots are converted into a two-dimensional liquidity-support point cloud using price distance from mid and normalized log depth. With Giotto-TDA installed, VietorisRipsPersistence is run in homology dimensions 0 and 1. Betti curves, H1 maximum persistence, and persistence entropy are extracted. A small threshold-graph fallback exists only for local smoke tests and is explicitly labelled as non-persistent topology.
 
-- **TDA:** L2 snapshots are converted into liquidity-support point clouds using price distance and log depth. Exact mode uses `giotto-tda` `VietorisRipsPersistence` in homology dimensions 0 and 1, producing Betti-0 / Betti-1 curves plus H1 persistence summaries.
-- **Stationarity:** log-mid prices are fractionally differentiated with a fixed-width causal filter. The smallest candidate order passing ADF on the training prefix is selected; Numba CUDA is used when available, otherwise the backend is explicitly reported as CPU fallback.
-- **Rare-event ML:** a custom binary Focal Loss gradient/Hessian is supplied to XGBoost, with `RandomOverSampler` applied only to the training slice. The control model uses the same features/split with standard log loss.
-- **Evaluation:** chronological holdout with a purge gap, plus expanding walk-forward folds that re-select fractional-differencing order from each training window.
+2. Fractional differentiation
+   Candidate fractional-differencing orders are evaluated using the Augmented Dickey-Fuller test on the training prefix only. The smallest candidate passing the configured ADF threshold is selected. The resulting fixed-width causal filter can run with Numba CUDA, a NumPy CPU path, or the included C++ CPU / optional C++ CUDA benchmark.
 
-## Run
+3. Rare-event prediction
+   XGBoost is trained with a hand-written binary Focal Loss gradient and Hessian. RandomOverSampler is applied only to the training slice after the chronological boundary is fixed. A standard binary-logloss XGBoost model is trained as the control.
 
-```bash
-cd research/topology_lob
-python -m pip install -e .[tda,dev]
-python run.py demo --config configs/demo.json --out results/demo
-python run.py ablation --config configs/demo.json --out results/ablation
-python run.py walk-forward --config configs/demo.json --out results/walk_forward.json
-python run.py ffd-benchmark --events 200000 --width 256 --d 0.45
-```
+4. Evaluation
+   The default evaluation uses a chronological holdout with a purge gap. The walk-forward runner uses expanding windows and re-selects the fractional-differencing order inside each training window.
 
-The default demo is synthetic. It is an integration test, not market data.
+## Install
+
+    cd research/topology_lob
+    python -m pip install -e ".[tda,dev]"
+
+For the exact TDA path, install the tda extra and run demo with --require-gtda.
+
+## Synthetic smoke run
+
+    python run.py demo --config configs/demo.json --out results/demo
+    python run.py ablation --config configs/demo.json --out results/ablation
+    python run.py walk-forward --config configs/demo.json --out results/walk_forward.json
+    python run.py ffd-benchmark --events 200000 --width 256 --d 0.45
+
+The included synthetic generator creates L2 geometry in which a rare liquidity void changes deeper book support and influences future returns. It is deterministic and is not market data.
 
 ## Real L2 data
 
-Expected columns:
+Required columns:
 
-```text
-timestamp,
-bid_price_1,bid_size_1,ask_price_1,ask_size_1,
-...,
-bid_price_N,bid_size_N,ask_price_N,ask_size_N
-```
+    timestamp
+    bid_price_1,bid_size_1,ask_price_1,ask_size_1
+    ...
+    bid_price_N,bid_size_N,ask_price_N,ask_size_N
 
-Run exact persistent homology with:
+Example:
 
-```bash
-python run.py demo --config configs/demo.json --data /absolute/path/to/l2.csv --require-gtda --out results/real_l2
-```
+    python run.py demo --data /absolute/path/to/l2.csv --config configs/demo.json --require-gtda --require-cuda --out results/real_l2
 
-For the GPU FFD requirement, add `--require-cuda`; the command exits unless a CUDA backend actually runs.
+The command fails instead of silently substituting a topology or accelerator fallback.
 
-## Experimental hygiene
+## Artifacts
 
-The requested resume metric `0.064` is stored only as a target/reference. The application never substitutes it for a measured result. Synthetic results and CPU fallbacks are labelled as such. A resume-grade number requires the intended real L2 data, locked evaluation protocol, and the exact backend/hardware required by the bullet.
+demo produces metrics.json, test_scores.csv, betti_curves.png, fractional_stationarity.png, and index.html.
 
-The research application deliberately lives outside the mechanically renamed upstream library sources retained in the fork. See `THIRD_PARTY.md` for provenance/licensing.
+## Resume metric
+
+The project brief says OOS IC = 0.064. This repository records 0.064 only as target_resume_ic. Any final resume claim must be recomputed on the intended real L2 dataset with exact Giotto-TDA execution and the required CUDA environment.

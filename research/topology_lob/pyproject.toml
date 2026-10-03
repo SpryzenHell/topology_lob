@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "topology-lob-research"
+version = "0.3.0"
+description = "Level-2 LOB topology, fractional differentiation, and custom focal-loss research pipeline"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "numpy>=1.25,<3",
+  "pandas>=2,<3",
+  "scipy>=1.11,<2",
+  "scikit-learn>=1.4,<2",
+  "statsmodels>=0.14,<0.15",
+  "xgboost>=2.1,<4",
+  "imbalanced-learn>=0.12,<0.15",
+  "numba>=0.59,<1",
+  "matplotlib>=3.7,<4",
+]
+
+[project.optional-dependencies]
+tda = ["giotto-tda==0.6.2"]
+dev = ["pytest>=8,<9"]
+
+[tool.setuptools]
+py-modules = ["topology_lob"]
