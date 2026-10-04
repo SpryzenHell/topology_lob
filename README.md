@@ -1,5 +1,7 @@
 # Topology LOB
 
+<p align="center"><img src="main.png" alt="Topology LOB project overview" width="100%"></p>
+
 Research code for Level-2 limit-order-book (L2 LOB) liquidity topology, fractional differentiation, and rare-event prediction.
 
 The runnable application is in `research/topology_lob/`. The root repository also contains the upstream codebases referenced by the original project specification; they are kept for provenance and are not required to understand the application layer.
