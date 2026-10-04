@@ -172,7 +172,7 @@ python run.py walk-forward   --config configs/demo.json   --out results/walk_for
 Run the standalone fractional-differentiation benchmark:
 
 ```bash
-python run.py ffd-benchmark   --events 200000   --width 256   --d 0.15
+python run.py ffd-benchmark --events 200000 --width 256 --d 0.45
 ```
 
 ## Real L2 CSV input
