@@ -35,7 +35,7 @@ research/topology_lob/
 ├── docs/                       Experiment and real-data run notes
 ├── scripts/                    FI-2010 conversion and benchmark tools
 ├── tests/                      Unit and integration tests
-├── assets/                     Measured figures and run screenshots
+├── assets/                     Figures and run-output captures
 ├── results/                    Result notes; generated run output is ignored
 ├── run.py                      Command-line entry point
 ├── topology_lob.py             Core pipeline
@@ -193,21 +193,55 @@ All figures below are generated from measured local runs or from deterministic d
 
 ### Vietoris-Rips Betti counts
 
-![Betti curves](research/topology_lob/assets/figures/betti_curves.png)
+![Betti curves](research/topology_lob/assets/figures/betti_curves.svg)
 
 ### Training-only stationarity selection
 
-![ADF selection](research/topology_lob/assets/figures/ffd_stationarity.png)
+![ADF selection](research/topology_lob/assets/figures/ffd_stationarity.svg)
 
 ### Model comparison from the recorded synthetic integration run
 
-![Model comparison](research/topology_lob/assets/figures/model_comparison.png)
+![Model comparison](research/topology_lob/assets/figures/model_comparison.svg)
 
 ### Standalone C++ benchmark
 
-![C++ benchmark](research/topology_lob/assets/figures/cpp_benchmark.png)
+![C++ benchmark](research/topology_lob/assets/figures/cpp_benchmark.svg)
 
-A full run-report preview and a terminal capture are also available in `research/topology_lob/assets/screenshots/`.
+### Run report preview
+
+![Run report preview](research/topology_lob/assets/screenshots/report_preview.svg)
+
+### Terminal run capture
+
+![Terminal run capture](research/topology_lob/assets/screenshots/terminal_demo_run.svg)
+
+The assets directory documents the provenance of each figure and capture.
+
+## Verified synthetic run
+
+The current local integration run uses the deterministic synthetic generator and the current application logic. It is included to verify that the code executes from input through feature construction, TDA, fractional differentiation and model evaluation.
+
+| Item | Value |
+|---|---:|
+| Synthetic events | 6,000 |
+| Model rows | 5,735 |
+| Training rows | 3,994 |
+| Test rows | 1,721 |
+| Purge gap | 20 |
+| Topology clouds | 743 |
+| Selected d | 0.1 |
+| TDA backend | exact-vr-gf2-fallback |
+| FFD backend | cpu-fallback:no-cuda |
+
+| Metric | Focal Loss | Log-loss control |
+|---|---:|---:|
+| Pearson IC | 0.131209 | 0.116689 |
+| Rank IC | 0.101913 | 0.104940 |
+| ROC-AUC | 0.581376 | 0.579952 |
+| PR-AUC | 0.263163 | 0.254891 |
+| Log loss | 0.501007 | 0.562889 |
+
+The validation machine did not have a CUDA device or Giotto-TDA installed. The exact TDA and CUDA paths are checked by the repository's GitHub Actions workflow; the local figures above are therefore labelled as the CPU/fallback validation record.
 
 ## Performance result policy
 
