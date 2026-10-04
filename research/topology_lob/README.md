@@ -61,9 +61,7 @@ The production TDA path is `gtda.homology.VietorisRipsPersistence`. When Giotto-
 
 
 
-The pinned project environment is Python 3.10-3.12. Python 3.11 is the recommended interpreter for the reproducibility path.
-
-The documented reproducibility path uses Python 3.11. For the Python pipeline, no system compiler is required. CMake and a C++ compiler are needed only for the standalone native benchmark. A CUDA toolkit and NVIDIA GPU are needed only for the CUDA executable.
+The pinned project environment is Python 3.10-3.12. Python 3.11 is the recommended interpreter for the documented reproducibility path. For the Python pipeline, no system compiler is required. CMake and a C++ compiler are needed only for the standalone native benchmark. A CUDA toolkit and NVIDIA GPU are needed only for the CUDA executable.
 
 ## Installation
 
@@ -120,7 +118,10 @@ The repository includes a deterministic synthetic L2 generator for an execution 
 Run:
 
 ```bash
-python run.py demo   --config configs/demo.json   --out results/demo   --require-gtda
+python run.py demo \
+  --config configs/demo.json \
+  --out results/demo \
+  --require-gtda
 ```
 
 After installation, the same command is also available as `topology-lob demo ...`.
@@ -151,7 +152,9 @@ The demo is an integration check. Its scores are not market performance and shou
 Run the feature ablation:
 
 ```bash
-python run.py ablation   --config configs/demo.json   --out results/ablation
+python run.py ablation \
+  --config configs/demo.json \
+  --out results/ablation
 ```
 
 The comparison covers:
@@ -166,7 +169,9 @@ full_focal
 Run the expanding walk-forward procedure:
 
 ```bash
-python run.py walk-forward   --config configs/demo.json   --out results/walk_forward.json
+python run.py walk-forward \
+  --config configs/demo.json \
+  --out results/walk_forward.json
 ```
 
 Run the standalone fractional-differentiation benchmark:
@@ -197,7 +202,11 @@ The loader performs the following checks before any modelling:
 Run a real CSV through the same pipeline:
 
 ```bash
-python run.py demo   --config configs/demo.json   --data /absolute/path/to/l2.csv   --out results/real_l2   --require-gtda
+python run.py demo \
+  --config configs/demo.json \
+  --data /absolute/path/to/l2.csv \
+  --out results/real_l2 \
+  --require-gtda
 ```
 
 For a GPU FFD run, add `--require-cuda`. That flag is fail-closed: the command stops if the CUDA backend is not actually used.
@@ -218,9 +227,19 @@ See:
 The standard run is:
 
 ```bash
-python scripts/fetch_fi2010.py   --out data/external/fi2010.zip   --extract
+python scripts/fetch_fi2010.py \
+  --out data/external/fi2010.zip \
+  --extract
 
-python scripts/run_fi2010_benchmark.py   --train data/external/fi2010/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt   --test     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt   --tda-stride 1000   --require-gtda   --out results/fi2010_benchmark.json
+python scripts/run_fi2010_benchmark.py \
+  --train data/external/fi2010/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt \
+  --test \
+    data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt \
+    data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt \
+    data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt \
+  --tda-stride 1000 \
+  --require-gtda \
+  --out results/fi2010_benchmark.json
 ```
 
 Add `--require-cuda` only when the GPU FFD implementation is part of the environment being verified.
