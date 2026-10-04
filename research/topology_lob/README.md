@@ -40,7 +40,7 @@ The production TDA path is `gtda.homology.VietorisRipsPersistence`. When Giotto-
 
 The pinned project environment is Python 3.10-3.12. Python 3.11 is the recommended interpreter for the reproducibility path.
 
-The pinned Giotto-TDA 0.6.2 release has wheels for the supported CPython versions, including Python 3.10, 3.11 and 3.12. citeturn914423search1turn914423search2
+The documented reproducibility path uses Python 3.11.
 
 ## Installation
 
@@ -282,6 +282,14 @@ This chart uses the measured synthetic integration-run metrics recorded during r
 ![C++ benchmark](assets/figures/cpp_benchmark.svg)
 
 This chart records the standalone C++ CPU benchmark used while validating the fractional-differentiation implementation.
+
+### Run report preview
+
+![Run report preview](assets/screenshots/report_preview.svg)
+
+### Terminal capture
+
+![Terminal capture](assets/screenshots/terminal_demo_run.svg)
 
 Additional run captures are under `assets/screenshots/`. The reproducibility checklist is in `docs/REPRODUCIBILITY.md`.
 
