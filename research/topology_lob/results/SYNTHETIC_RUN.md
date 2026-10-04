@@ -1,6 +1,6 @@
 # Synthetic integration record
 
-This record documents a deterministic local execution of the application using the repository's synthetic L2 generator.
+This record documents a deterministic local execution of the current application using the repository's synthetic L2 generator.
 
 It is an engineering validation result. It is not market data and it is not used to support the resume Information Coefficient claim.
 
@@ -8,10 +8,10 @@ It is an engineering validation result. It is not market data and it is not used
 
 ```bash
 cd research/topology_lob
-python run.py demo   --config configs/demo.json   --out results/demo
+python run.py demo --config configs/demo.json --out results/demo
 ```
 
-The validation environment did not have a CUDA device and did not have Giotto-TDA installed, so the run intentionally exercised the explicit CPU path and exact small-cloud VR fallback.
+The validation environment did not have a CUDA device and did not have Giotto-TDA installed, so this run exercised the explicit CPU path and the exact small-cloud Vietoris-Rips fallback.
 
 ## Measured execution
 
@@ -19,11 +19,11 @@ The validation environment did not have a CUDA device and did not have Giotto-TD
 |---|---:|
 | Synthetic events | 6,000 |
 | Model rows | 5,735 |
-| Training rows | 3,964 |
-| Test rows | 1,711 |
+| Training rows | 3,994 |
+| Test rows | 1,721 |
 | Purge gap | 20 |
-| Topology clouds | 594 |
-| Selected fractional-differencing order | 0.4 |
+| Topology clouds | 743 |
+| Selected fractional-differencing order | 0.1 |
 | TDA backend | exact-vr-gf2-fallback |
 | FFD backend | cpu-fallback:no-cuda |
 | GPU used | false |
@@ -32,13 +32,13 @@ The validation environment did not have a CUDA device and did not have Giotto-TD
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.009943 | 0.039237 |
-| Rank IC | 0.018416 | 0.045511 |
-| ROC-AUC | 0.511312 | 0.542148 |
-| PR-AUC | 0.061286 | 0.064195 |
-| Log loss | 0.742249 | 0.218352 |
+| Pearson IC | 0.131209 | 0.116689 |
+| Rank IC | 0.101913 | 0.104940 |
+| ROC-AUC | 0.581376 | 0.579952 |
+| PR-AUC | 0.263163 | 0.254891 |
+| Log loss | 0.501007 | 0.562889 |
 
-The scores come from the same chronological split. They are included so another developer can distinguish a functioning code path from an unverified performance claim.
+The scores come from the same chronological split. They document a functioning implementation and are not presented as a market-data result.
 
 ## Standalone C++ benchmark
 
