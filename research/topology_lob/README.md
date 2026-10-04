@@ -36,11 +36,34 @@ L2 snapshots
 
 The production TDA path is `gtda.homology.VietorisRipsPersistence`. When Giotto-TDA is unavailable, the code has a small-cloud exact Vietoris-Rips fallback that computes H0 and H1 of the clique complex over GF(2). This fallback exists to keep local tests and lightweight smoke runs useful; use `--require-gtda` for a real run so a missing TDA dependency is never hidden.
 
-## Supported environment
+## Main feature groups
+
+| Block | Features / role |
+|---|---|
+| L2 validation | Timestamp ordering, unique events, numeric fields, non-negative sizes, uncrossed best bid/ask |
+| Microstructure | Spread, multi-level depth imbalance, microprice edge, OFI, returns, rolling volatility, inter-arrival time |
+| Topology | LOB liquidity-support point cloud, Vietoris-Rips H0/H1, Betti curves, H1 persistence statistics |
+| Fractional differentiation | ADF-selected d from training data only, causal fixed-width filter, CUDA/CPU execution |
+| Imbalanced learning | RandomOverSampler on training rows only |
+| Prediction | XGBoost with custom binary Focal Loss; standard binary-logloss control |
+| Evaluation | Pearson IC, Rank IC, ROC-AUC, PR-AUC, log loss, class balance |
+
+## Command reference
+
+| Command | Purpose |
+|---|---|
+| `python run.py demo ...` | End-to-end L2 pipeline and report generation |
+| `python run.py ablation ...` | Compare microstructure, fractional-difference and topology feature blocks |
+| `python run.py walk-forward ...` | Expanding-window out-of-sample check |
+| `python run.py ffd-benchmark ...` | Standalone fractional-differentiation throughput check |
+| `python -m pytest -q` | Unit and integration tests |
+| `cmake -S . -B build && cmake --build build` | Build the C++ CPU benchmark |
+
+
 
 The pinned project environment is Python 3.10-3.12. Python 3.11 is the recommended interpreter for the reproducibility path.
 
-The documented reproducibility path uses Python 3.11.
+The documented reproducibility path uses Python 3.11. For the Python pipeline, no system compiler is required. CMake and a C++ compiler are needed only for the standalone native benchmark. A CUDA toolkit and NVIDIA GPU are needed only for the CUDA executable.
 
 ## Installation
 
