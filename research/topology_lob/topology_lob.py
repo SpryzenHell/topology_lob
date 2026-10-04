@@ -346,11 +346,11 @@ def persistent_features(clouds, radii, require_gtda=False, n_jobs=-1):
         + ["void_gap_proxy", "h1_persistence_entropy"]
     )
     return np.asarray(rows), {
-        "backend": "threshold-graph-fallback",
+        "backend": "exact-vr-gf2-fallback",
         "n_clouds": len(clouds),
         "radii": list(map(float, radii)),
         "feature_names": names,
-        "warning": "Not persistent homology; install giotto-tda for exact VR persistence.",
+        "warning": "Exact small-cloud Vietoris-Rips H0/H1 fallback; install giotto-tda for production-scale persistent homology.",
     }
 
 
