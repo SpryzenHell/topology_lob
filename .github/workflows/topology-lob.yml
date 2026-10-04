@@ -1,0 +1,69 @@
+name: topology-lob
+
+on:
+  push:
+    paths:
+      - "research/topology_lob/**"
+      - ".github/workflows/topology-lob.yml"
+  pull_request:
+    paths:
+      - "research/topology_lob/**"
+      - ".github/workflows/topology-lob.yml"
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: research/topology_lob
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: research/topology_lob/pyproject.toml
+
+      - name: Install project
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[tda,dev]"
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Run synthetic demo with Giotto-TDA
+        run: python run.py demo --config configs/demo.json --out /tmp/topology-lob-demo --require-gtda
+
+      - name: Verify TDA backend
+        run: python - <<'PY'
+import json
+from pathlib import Path
+m = json.loads(Path("/tmp/topology-lob-demo/metrics.json").read_text())
+assert m["tda"]["backend"] == "giotto-tda", m["tda"]
+print("TDA backend:", m["tda"]["backend"])
+PY
+
+      - name: Build C++ CPU benchmark
+        run: cmake -S . -B /tmp/topology-lob-build && cmake --build /tmp/topology-lob-build --config Release
+
+      - name: Run C++ benchmark
+        run: /tmp/topology-lob-build/fractional_diff_cpu
+
+  package:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: research/topology_lob
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build package
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Check package files
+        run: ls -lh dist/
