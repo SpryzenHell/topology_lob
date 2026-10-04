@@ -300,10 +300,11 @@ The latest local integration validation used:
 ```text
 6,000 synthetic L2 events
 5,735 model rows
-3,964 train rows
-1,711 test rows
+3,994 train rows
+1,721 test rows
 20-row purge
-594 topology clouds
+743 topology clouds
+selected d: 0.1
 exact-vr-gf2-fallback
 CPU FFD fallback (no CUDA device in the validation environment)
 ```
