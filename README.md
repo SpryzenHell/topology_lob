@@ -55,7 +55,7 @@ cd topology_lob/research/topology_lob
 
 ### 2. Use a supported Python
 
-The pinned environment targets Python 3.10-3.12. Python 3.11 is the recommended choice for the reproducibility path because the pinned Giotto-TDA release provides wheels for the supported interpreter range. citeturn914423search1turn914423search2
+The pinned environment targets Python 3.10-3.12. Python 3.11 is the recommended choice for the documented reproducibility path.
 
 Example with Python 3.11:
 
@@ -189,7 +189,7 @@ All figures below are generated from measured local runs or from deterministic d
 
 ### L2 snapshot used by the deterministic demo
 
-![Synthetic L2 snapshot](research/topology_lob/assets/figures/lob_snapshot.png)
+![Synthetic L2 snapshot](research/topology_lob/assets/figures/lob_snapshot.svg)
 
 ### Vietoris-Rips Betti counts
 
