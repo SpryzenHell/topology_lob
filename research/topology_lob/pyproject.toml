@@ -24,4 +24,11 @@ tda = ["giotto-tda==0.6.2"]
 dev = ["pytest>=8,<9"]
 
 [tool.setuptools]
-py-modules = ["topology_lob", "fi2010"]
+py-modules = ["topology_lob", "fi2010", "run"]
+
+[project.scripts]
+topology-lob = "run:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
