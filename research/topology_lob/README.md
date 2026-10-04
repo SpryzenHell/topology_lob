@@ -149,7 +149,7 @@ python run.py walk-forward   --config configs/demo.json   --out results/walk_for
 Run the standalone fractional-differentiation benchmark:
 
 ```bash
-python run.py ffd-benchmark   --events 200000   --width 256   --d 0.45
+python run.py ffd-benchmark   --events 200000   --width 256   --d 0.15
 ```
 
 ## Real L2 CSV input
@@ -312,9 +312,9 @@ Measured synthetic holdout metrics were:
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.009943 | 0.039237 |
-| Rank IC | 0.018416 | 0.045511 |
-| ROC-AUC | 0.511312 | 0.542148 |
+| Pearson IC | 0.131209 | 0.116689 |
+| Rank IC | 0.101913 | 0.104940 |
+| ROC-AUC | 0.581376 | 0.579952 |
 
 These numbers document that the implementation executed. They are not a claim about live or historical market performance.
 
