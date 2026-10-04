@@ -81,7 +81,7 @@ For the complete TDA path and development tests:
 python -m pip install -e ".[tda,dev]"
 ```
 
-This installs the pinned numerical stack plus Giotto-TDA and pytest. The Giotto-TDA 0.6.2 release is available for Python 3.8-3.12; the project intentionally keeps its own Python range narrower for a stable environment. citeturn914423search2
+This installs the pinned numerical stack plus Giotto-TDA and pytest.
 
 ### 4. Run the test suite
 
