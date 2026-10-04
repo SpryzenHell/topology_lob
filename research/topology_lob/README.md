@@ -1,5 +1,7 @@
 # Topology LOB
 
+<p align="center"><img src="assets/main.png" alt="Topology LOB project overview" width="100%"></p>
+
 A reproducible research implementation for Level-2 limit-order-book data. The pipeline extracts microstructure and topological liquidity features, applies fractional differentiation to the mid-price series, and trains an XGBoost model with a custom binary Focal Loss objective.
 
 The code under this directory is the application layer. The parent repository retains the upstream projects from the original specification for provenance.
