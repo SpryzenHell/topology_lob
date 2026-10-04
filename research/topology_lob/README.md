@@ -100,6 +100,8 @@ Run:
 python run.py demo   --config configs/demo.json   --out results/demo   --require-gtda
 ```
 
+After installation, the same command is also available as `topology-lob demo ...`.
+
 The command writes:
 
 ```text
@@ -253,35 +255,35 @@ These rules should be preserved if the experimental configuration is changed.
 
 ### L2 snapshot
 
-![L2 snapshot](assets/figures/lob_snapshot.png)
+![L2 snapshot](assets/figures/lob_snapshot.svg)
 
 The figure is generated from the deterministic synthetic L2 constructor used by the integration demo.
 
 ### Topological features
 
-![Betti curves](assets/figures/betti_curves.png)
+![Betti curves](assets/figures/betti_curves.svg)
 
 This is an exact small-cloud VR calculation from a generated L2 snapshot. It is included to show the geometry used by the local fallback; it is not a substitute for Giotto-TDA in the production benchmark.
 
 ### Stationarity selection
 
-![ADF selection](assets/figures/ffd_stationarity.png)
+![ADF selection](assets/figures/ffd_stationarity.svg)
 
 This figure records a training-prefix ADF candidate sweep on the same deterministic synthetic constructor.
 
 ### Model comparison
 
-![Model comparison](assets/figures/model_comparison.png)
+![Model comparison](assets/figures/model_comparison.svg)
 
 This chart uses the measured synthetic integration-run metrics recorded during repository validation. It is labelled as engineering validation rather than market evidence.
 
 ### C++ benchmark
 
-![C++ benchmark](assets/figures/cpp_benchmark.png)
+![C++ benchmark](assets/figures/cpp_benchmark.svg)
 
 This chart records the standalone C++ CPU benchmark used while validating the fractional-differentiation implementation.
 
-Additional run captures are under `assets/screenshots/`.
+Additional run captures are under `assets/screenshots/`. The reproducibility checklist is in `docs/REPRODUCIBILITY.md`.
 
 ## Current validation record
 
