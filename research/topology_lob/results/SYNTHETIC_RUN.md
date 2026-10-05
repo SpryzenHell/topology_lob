@@ -13,18 +13,18 @@ This record is an engineering validation run from the deterministic synthetic L2
 | Purge gap | 20 |
 | Topology clouds | 743 |
 | Selected d | 0.1 |
-| TDA backend | exact-vr-gf2-fallback |
+| TDA backend | giotto-tda |
 | FFD backend | CPU fallback (no CUDA) |
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.120444 | 0.116689 |
-| Rank IC | 0.099255 | 0.104940 |
-| ROC-AUC | 0.579135 | 0.579952 |
-| PR-AUC | 0.263428 | 0.254891 |
-| Log loss | 0.501762 | 0.562889 |
+| Pearson IC | 0.073292 | 0.095368 |
+| Rank IC | 0.039856 | 0.036762 |
+| ROC-AUC | 0.531075 | 0.528676 |
+| PR-AUC | 0.244568 | 0.242809 |
+| Log loss | 0.516779 | 0.561761 |
 
-The local run used Python 3.13, NumPy 2.3.5, pandas 2.2.3, XGBoost 3.1.3 and Matplotlib 3.10.8. Python 3.13 is outside the project's declared Python 3.10-3.12 support range, so this is a local fallback-engineering snapshot rather than the supported-environment release result.
+The supported-environment GitHub Actions run used Python 3.11.16 with the declared pinned stack and Giotto-TDA 0.6.2. The complete machine-generated evidence was uploaded as a CI artifact and then used to refresh the committed raster assets.
 
 ## Extended experiments
 
@@ -34,4 +34,6 @@ The corresponding raster evidence is kept under `../assets/figures/`, with reada
 
 ## Interpretation
 
-The six-seed results are intentionally variable and the walk-forward sequence includes both negative and positive folds. Topology improves some synthetic classification/IC measures in ablations but the full stack does not dominate every metric. These synthetic results are therefore not used to claim a stable trading relationship. The historical 0.064 resume IC remains a reproduction target requiring the intended real L2 dataset and supported TDA/accelerator environment.
+The six-seed results are intentionally variable and the walk-forward sequence includes both negative and positive folds. In the supported-environment run, Focal Loss does not dominate the log-loss control on every metric; this is preserved rather than hidden. These synthetic results are therefore not used to claim a stable trading relationship. The historical 0.064 resume IC remains a reproduction target requiring the intended real L2 dataset and supported TDA/accelerator environment.
+
+The supported-environment validation record is in `CI_VALIDATION.md`, while the extended experiment details are in `EXPERIMENTAL_VALIDATION.md`.
