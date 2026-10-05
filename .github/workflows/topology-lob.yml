@@ -1,5 +1,8 @@
 name: topology-lob
 
+permissions:
+  contents: write
+
 on:
   push:
     paths:
@@ -83,6 +86,53 @@ PY
 
       - name: Run C++ benchmark
         run: /tmp/topology-lob-build/fractional_diff_cpu
+
+
+  refresh-assets:
+    if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+    needs: python
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: research/topology_lob
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: topology-lob-extended-evidence
+          path: /tmp/topology-lob-evidence
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install image validation dependencies
+        run: python -m pip install -e .
+
+      - name: Refresh README assets
+        run: |
+          python scripts/generate_main_image.py
+          cp /tmp/topology-lob-evidence/figures/experimental_validation_dashboard.png assets/figures/experimental_validation_dashboard.png
+          cp /tmp/topology-lob-evidence/figures/robustness_dashboard.png assets/figures/robustness_dashboard.png
+          cp /tmp/topology-lob-evidence/figures/data_diagnostics_dashboard.png assets/figures/data_diagnostics_dashboard.png
+          cp /tmp/topology-lob-evidence/screenshots/report_preview.png assets/screenshots/report_preview.png
+          cp /tmp/topology-lob-evidence/screenshots/terminal_demo_run.png assets/screenshots/terminal_demo_run.png
+          rm -f assets/screenshots/report_preview.svg assets/screenshots/terminal_demo_run.svg
+          cp assets/main.png ../../main.png
+          python scripts/validate_assets.py
+
+      - name: Commit refreshed assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.png assets/main.png assets/figures assets/screenshots
+          if git diff --cached --quiet; then
+            echo "No asset changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: refresh verified README evidence assets [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
 
   package:
     runs-on: ubuntu-latest
