@@ -3,6 +3,10 @@ name: topology-lob
 permissions:
   contents: write
 
+concurrency:
+  group: topology-lob-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths:
