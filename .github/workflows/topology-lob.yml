@@ -44,6 +44,40 @@ assert m["tda"]["backend"] == "giotto-tda", m["tda"]
 print("TDA backend:", m["tda"]["backend"])
 PY
 
+      - name: Generate extended experiment evidence
+        run: python scripts/generate_evidence.py --events 6000 --out /tmp/topology-lob-evidence --require-gtda
+
+      - name: Validate extended evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("/tmp/topology-lob-evidence")
+          report = json.loads((root / "experimental_validation.json").read_text())
+          assert report["main"]["tda_backend"] == "giotto-tda", report["main"]
+          assert report["checks"]["gradient_pass"]
+          assert report["checks"]["hessian_pass"]
+          assert report["data_quality"]["all_pass"] if "data_quality" in report else report["checks"]["all_pass"]
+          assert len(report["ablation"]) == 5
+          assert len(report["seed_sensitivity"]) == 6
+          assert len(report["walk_forward"]) == 5
+          for name in [
+              "experimental_validation_dashboard.png",
+              "robustness_dashboard.png",
+              "data_diagnostics_dashboard.png",
+          ]:
+              assert (root / "figures" / name).is_file()
+          for name in ["report_preview.png", "terminal_demo_run.png"]:
+              assert (root / "screenshots" / name).is_file()
+          print("Extended evidence validation: PASS")
+          PY
+
+      - name: Upload extended evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: topology-lob-extended-evidence
+          path: /tmp/topology-lob-evidence
+
       - name: Build C++ CPU benchmark
         run: cmake -S . -B /tmp/topology-lob-build && cmake --build /tmp/topology-lob-build --config Release
 
