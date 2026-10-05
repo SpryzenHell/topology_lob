@@ -329,13 +329,23 @@ This chart records the standalone C++ CPU benchmark used while validating the fr
 
 ### Run report preview
 
-![Run report preview](assets/screenshots/report_preview.svg)
+![Run report preview](assets/screenshots/report_preview.png)
 
 ### Terminal capture
 
-![Terminal capture](assets/screenshots/terminal_demo_run.svg)
+![Terminal capture](assets/screenshots/terminal_demo_run.png)
 
 Additional run captures are under `assets/screenshots/`. The reproducibility checklist is in `docs/REPRODUCIBILITY.md`.
+
+### Extended experiment and data-analysis evidence
+
+The evidence generator runs a five-way feature/objective ablation, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, Focal Loss gradient/Hessian finite-difference checks, malformed-book rejection, price-translation invariance, causal FFD prefix invariance, and descriptive L2/topology diagnostics.
+
+```bash
+python scripts/generate_evidence.py --events 6000 --out results/evidence
+```
+
+Add `--require-gtda` in the supported Python 3.10-3.12 environment to require the Giotto-TDA path explicitly.
 
 ## Current validation record
 
@@ -357,11 +367,11 @@ Measured synthetic holdout metrics were:
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.131209 | 0.116689 |
-| Rank IC | 0.101913 | 0.104940 |
-| ROC-AUC | 0.581376 | 0.579952 |
+| Pearson IC | 0.120444 | 0.116689 |
+| Rank IC | 0.099255 | 0.104940 |
+| ROC-AUC | 0.579135 | 0.579952 |
 
-These numbers document that the implementation executed. They are not a claim about live or historical market performance.
+The local numerical snapshot was produced with Python 3.13, outside the project's declared Python 3.10-3.12 support range, using the explicit small-cloud TDA fallback and CPU FFD path. These numbers document an engineering execution; they are not a claim about live or historical market performance. The supported-environment CI run is the release-path check.
 
 The standalone C++ benchmark processed approximately 7.26 million events/second for the configured 200,000-event, width-256, d=0.45 test.
 
