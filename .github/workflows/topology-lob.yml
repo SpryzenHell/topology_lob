@@ -94,7 +94,7 @@ jobs:
 
 
   refresh-assets:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/revamp/topology-lob-research'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'revamp/topology-lob-research')
     needs: python
     runs-on: ubuntu-latest
     defaults:
@@ -102,6 +102,8 @@ jobs:
         working-directory: research/topology_lob
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -139,7 +141,7 @@ jobs:
             exit 0
           fi
           git commit -m "chore: refresh verified README evidence assets [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}"
 
   package:
     runs-on: ubuntu-latest
