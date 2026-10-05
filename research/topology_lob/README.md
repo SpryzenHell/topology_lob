@@ -373,7 +373,7 @@ Measured synthetic holdout metrics were:
 
 These values are supported-environment engineering results, not a claim about live or historical market performance.
 
-The complete validation record is in `results/CI_VALIDATION.md` and `results/EXPERIMENTAL_VALIDATION.md`.
+The complete validation record is in `results/CI_VALIDATION.md` and `results/EXPERIMENTAL_VALIDATION.md`.\n\nThe verified FI-2010 benchmark analysis is in `results/FI2010_VALIDATION.md`, with the corresponding figure in `assets/figures/fi2010_validation_dashboard.png`.
 
 ## Extended experiment evidence
 
