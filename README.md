@@ -211,13 +211,33 @@ All figures below are generated from measured local runs or from deterministic d
 
 ### Run report preview
 
-![Run report preview](research/topology_lob/assets/screenshots/report_preview.svg)
+![Run report preview](research/topology_lob/assets/screenshots/report_preview.png)
 
 ### Terminal run capture
 
-![Terminal run capture](research/topology_lob/assets/screenshots/terminal_demo_run.svg)
+![Terminal run capture](research/topology_lob/assets/screenshots/terminal_demo_run.png)
 
 The assets directory documents the provenance of each figure and capture.
+
+The run captures are stored as raster PNGs with embedded standard fonts. This avoids browser font/rendering differences in GitHub's Markdown image renderer. The original SVG architecture diagrams are retained separately.
+
+### Extended experiment and data-analysis evidence
+
+![Experimental validation dashboard](research/topology_lob/assets/figures/experimental_validation_dashboard.png)
+
+![Robustness and correctness dashboard](research/topology_lob/assets/figures/robustness_dashboard.png)
+
+![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)
+
+The evidence generator exercises a five-way feature/objective ablation, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, Focal Loss gradient/Hessian finite-difference checks, malformed-book rejection, price-translation invariance, causal fractional-differentiation invariance, and descriptive L2/topology diagnostics.
+
+Re-generate the evidence with:
+
+```bash
+python scripts/generate_evidence.py --events 6000 --out results/evidence
+```
+
+On a supported environment with Giotto-TDA installed, add `--require-gtda` so the run fails closed rather than silently substituting the small-cloud fallback. The committed PNGs are a readable local validation snapshot; generated CI artifacts are the supported-environment execution record.
 
 ## Verified synthetic run
 
@@ -243,7 +263,7 @@ The current local integration run uses the deterministic synthetic generator and
 | PR-AUC | 0.263163 | 0.254891 |
 | Log loss | 0.501007 | 0.562889 |
 
-The validation machine did not have a CUDA device or Giotto-TDA installed. The exact TDA and CUDA paths are checked by the repository's GitHub Actions workflow; the local figures above are therefore labelled as the CPU/fallback validation record.
+The local validation machine used Python 3.13 with the explicit small-cloud TDA fallback and no CUDA device. The project supports Python 3.10-3.12; therefore this local numerical snapshot is engineering evidence, not the supported-environment release result. The GitHub Actions workflow installs Python 3.11 and Giotto-TDA and fails closed when that path cannot run.
 
 ## Performance result policy
 
