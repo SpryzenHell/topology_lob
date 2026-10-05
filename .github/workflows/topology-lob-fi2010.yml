@@ -2,14 +2,6 @@ name: topology-lob-fi2010
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "research/topology_lob/**"
-      - ".github/workflows/topology-lob-fi2010.yml"
-  pull_request:
-    paths:
-      - "research/topology_lob/**"
-      - ".github/workflows/topology-lob-fi2010.yml"
 
 jobs:
   fi2010:
