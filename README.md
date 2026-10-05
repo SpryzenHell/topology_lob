@@ -201,7 +201,7 @@ All figures below are generated from measured local runs or from deterministic d
 
 ![ADF selection](research/topology_lob/assets/figures/ffd_stationarity.svg)
 
-### Model comparison from the recorded synthetic integration run
+### Model comparison from the supported CI run
 
 ![Model comparison](research/topology_lob/assets/figures/model_comparison.svg)
 
@@ -227,7 +227,9 @@ The run captures are stored as raster PNGs with embedded standard fonts. This av
 
 ![Robustness and correctness dashboard](research/topology_lob/assets/figures/robustness_dashboard.png)
 
-![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)\n\n![FI-2010 validation dashboard](research/topology_lob/assets/figures/fi2010_validation_dashboard.png)
+![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)
+
+![FI-2010 validation dashboard](research/topology_lob/assets/figures/fi2010_validation_dashboard.png)
 
 The evidence generator exercises a five-way feature/objective ablation, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, Focal Loss gradient/Hessian finite-difference checks, malformed-book rejection, price-translation invariance, causal fractional-differentiation invariance, and descriptive L2/topology diagnostics.
 
@@ -241,7 +243,7 @@ On a supported environment with Giotto-TDA installed, add `--require-gtda` so th
 
 ## Verified synthetic run
 
-The current local integration run uses the deterministic synthetic generator and the current application logic. It is included to verify that the code executes from input through feature construction, TDA, fractional differentiation and model evaluation.
+The current release-path integration run uses the deterministic synthetic generator and the supported Python 3.11 + Giotto-TDA environment. It verifies execution from input through feature construction, TDA, fractional differentiation and model evaluation.
 
 | Item | Value |
 |---|---:|
