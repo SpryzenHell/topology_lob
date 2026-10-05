@@ -257,11 +257,11 @@ The current local integration run uses the deterministic synthetic generator and
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.131209 | 0.116689 |
-| Rank IC | 0.101913 | 0.104940 |
-| ROC-AUC | 0.581376 | 0.579952 |
-| PR-AUC | 0.263163 | 0.254891 |
-| Log loss | 0.501007 | 0.562889 |
+| Pearson IC | 0.073292 | 0.095368 |
+| Rank IC | 0.039856 | 0.036762 |
+| ROC-AUC | 0.531075 | 0.528676 |
+| PR-AUC | 0.244568 | 0.242809 |
+| Log loss | 0.516779 | 0.561761 |
 
 The current release-path validation was completed in GitHub Actions on Python 3.11.16 with the pinned stack and Giotto-TDA 0.6.2. The CPU runner had no CUDA device, so FFD used the explicit CPU fallback. The extended evidence artifact was uploaded successfully and the validated raster assets were then committed back to the branch.
 
