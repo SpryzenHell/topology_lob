@@ -118,6 +118,7 @@ jobs:
       - name: Refresh README assets
         run: |
           python scripts/generate_main_image.py
+          python scripts/generate_fi2010_dashboard.py
           cp /tmp/topology-lob-evidence/figures/experimental_validation_dashboard.png assets/figures/experimental_validation_dashboard.png
           cp /tmp/topology-lob-evidence/figures/robustness_dashboard.png assets/figures/robustness_dashboard.png
           cp /tmp/topology-lob-evidence/figures/data_diagnostics_dashboard.png assets/figures/data_diagnostics_dashboard.png
