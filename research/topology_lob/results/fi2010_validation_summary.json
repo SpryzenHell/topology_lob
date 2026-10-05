@@ -1,0 +1,84 @@
+{
+  "workflow_run": 116,
+  "workflow_run_id": 37296970151,
+  "artifact_id": 11340301024,
+  "artifact_digest": "sha256:e3bde77fabd856c6d6192dac043f03c5bffc6f3581a404ab89ef0260158add10",
+  "data_source": "FI-2010 Decimal-Precision mirror from zcakhaa/DeepLOB",
+  "train_events": 254750,
+  "test_events": [
+    55478,
+    52172,
+    31937
+  ],
+  "combined_events": 394337,
+  "selected_d": 0.3,
+  "topology_clouds": 395,
+  "horizon": 10,
+  "purge_events": 50,
+  "label_threshold": 0.0005,
+  "tda_backend": "giotto-tda",
+  "ffd_backend": "cpu-fallback:no-cuda",
+  "gpu_used": false,
+  "days": [
+    {
+      "day": 8,
+      "pearson_ic": 0.007156086937315558,
+      "rank_ic": 0.17362936503544307,
+      "roc_auc": 0.723816128167809,
+      "pr_auc": 0.2615872214434622,
+      "logloss": 0.6364198895061591
+    },
+    {
+      "day": 9,
+      "pearson_ic": -0.0023490892070221017,
+      "rank_ic": 0.14460479825521677,
+      "roc_auc": 0.6916142142377761,
+      "pr_auc": 0.22467978360391375,
+      "logloss": 0.6457344366525323
+    },
+    {
+      "day": 10,
+      "pearson_ic": 0.0007858303694984641,
+      "rank_ic": 0.16169431062400302,
+      "roc_auc": 0.7098537521944693,
+      "pr_auc": 0.2531419950788708,
+      "logloss": 0.6410486468751811
+    }
+  ],
+  "aggregate": {
+    "focal_mean_pearson_ic": 0.0018642760332639736,
+    "focal_std_pearson_ic": 0.004843488120248919,
+    "focal_mean_rank_ic": 0.1599761579715543,
+    "focal_std_rank_ic": 0.014588365418983427,
+    "focal_pooled_probability_pearson_ic": 0.002022785083067798,
+    "focal_pooled_margin_pearson_ic": 0.002020206279342444,
+    "focal_pooled_margin_rank_ic": 0.15908757246500044
+  },
+  "ablation": {
+    "micro_only": {
+      "pearson_ic": 0.0035375681647529236,
+      "rank_ic": 0.17096678789668002,
+      "roc_auc": 0.7024348694478729
+    },
+    "micro_plus_fd": {
+      "pearson_ic": 0.0027931802978013983,
+      "rank_ic": 0.15800507974681222,
+      "roc_auc": 0.7055471454923758
+    },
+    "micro_plus_topology": {
+      "pearson_ic": 0.0029554493715435925,
+      "rank_ic": 0.1748569108244287,
+      "roc_auc": 0.7037985168825511
+    },
+    "full_focal": {
+      "pearson_ic": 0.0018260982596738258,
+      "rank_ic": 0.1600331536259849,
+      "roc_auc": 0.7098052257758986
+    },
+    "full_logloss": {
+      "pearson_ic": 0.0011844279872869734,
+      "rank_ic": 0.1629409865989369,
+      "roc_auc": 0.7079111813428238
+    }
+  }
+}
