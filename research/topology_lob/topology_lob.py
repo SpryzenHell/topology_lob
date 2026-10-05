@@ -331,9 +331,10 @@ def persistent_features(clouds, radii, require_gtda=False, n_jobs=-1):
     except ImportError:
         if require_gtda:
             raise RuntimeError("giotto-tda is required; install the tda extra")
-    except Exception:
-        if require_gtda:
-            raise
+    except Exception as exc:
+        raise RuntimeError(
+            "Giotto-TDA persistent homology failed; fix the TDA environment or run without giotto-tda for the explicit small-cloud fallback."
+        ) from exc
 
     rows = []
     for cloud in clouds:
