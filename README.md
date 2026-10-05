@@ -252,7 +252,7 @@ The current local integration run uses the deterministic synthetic generator and
 | Purge gap | 20 |
 | Topology clouds | 743 |
 | Selected d | 0.1 |
-| TDA backend | exact-vr-gf2-fallback |
+| TDA backend | giotto-tda |
 | FFD backend | cpu-fallback:no-cuda |
 
 | Metric | Focal Loss | Log-loss control |
@@ -263,9 +263,12 @@ The current local integration run uses the deterministic synthetic generator and
 | PR-AUC | 0.263163 | 0.254891 |
 | Log loss | 0.501007 | 0.562889 |
 
-The local validation machine used Python 3.13 with the explicit small-cloud TDA fallback and no CUDA device. The project supports Python 3.10-3.12; therefore this local numerical snapshot is engineering evidence, not the supported-environment release result. The GitHub Actions workflow installs Python 3.11 and Giotto-TDA and fails closed when that path cannot run.
+The current release-path validation was completed in GitHub Actions on Python 3.11.16 with the pinned stack and Giotto-TDA 0.6.2. The CPU runner had no CUDA device, so FFD used the explicit CPU fallback. The extended evidence artifact was uploaded successfully and the validated raster assets were then committed back to the branch.
 
-## Performance result policy
+## CI validation record
+
+The supported-environment execution record is in `research/topology_lob/results/CI_VALIDATION.md`, and the extended numerical analysis is in `research/topology_lob/results/EXPERIMENTAL_VALIDATION.md`.
+
 
 The repository contains a deterministic synthetic integration result and a standalone C++ CPU benchmark so that the codebase has concrete execution evidence without inventing a market result.
 
