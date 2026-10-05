@@ -373,7 +373,7 @@ Measured synthetic holdout metrics were:
 
 The local numerical snapshot was produced with Python 3.13, outside the project's declared Python 3.10-3.12 support range, using the explicit small-cloud TDA fallback and CPU FFD path. These numbers document an engineering execution; they are not a claim about live or historical market performance. The supported-environment CI run is the release-path check.
 
-The standalone C++ benchmark processed approximately 7.26 million events/second for the configured 200,000-event, width-256, d=0.45 test.
+The supported CI C++ benchmark measured 5,247,526 events/second for 200,000 events, width 256, d=0.45.
 
 ## Resume metric
 
