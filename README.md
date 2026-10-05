@@ -1,202 +1,291 @@
 # Topology LOB
 
-## Overview
+<p align="center"><img src="main.png" alt="Topology LOB project overview" width="100%"></p>
 
-**Topology LOB** is a high-performance quantitative modeling engine that applies Topological Data Analysis (TDA) to Level-2 Limit Order Book (LOB) data. The engine moves away from traditional linear time-series indicators (like EMAs or standard Autoregressive Neural Networks) which suffer from phase-lag. 
+Research code for Level-2 limit-order-book (L2 LOB) liquidity topology, fractional differentiation, and rare-event prediction.
 
-Instead, it treats the Limit Order Book as a higher-dimensional spatial Point Cloud, mathematically mapping the multi-dimensional "shape" of liquidity voids and extracting Betti numbers via Vietoris-Rips filtrations to detect imminent volatility spikes and regime shifts with strictly zero phase lag.
+The runnable application is in `research/topology_lob/`. The root repository also contains the upstream codebases referenced by the original project specification; they are kept for provenance and are not required to understand the application layer.
 
-The project integrates three major domains:
-1. **Topological Data Analysis (TDA):** For feature extraction via persistent homology.
-2. **Custom Objective Functions:** A Focal Loss objective to handle the extreme class imbalance inherent in financial anomaly prediction.
-3. **Imbalanced Learning Frameworks:** For re-sampling and combating the "curse of imbalanced datasets" in machine learning.
+## What is implemented
 
----
+The application takes L2 snapshots through the following stages:
 
-## Part I: Topological Machine Learning
+```
+L2 snapshots
+    -> schema validation
+    -> microstructure features
+    -> liquidity-support point clouds
+    -> Vietoris-Rips persistent homology (H0/H1)
+    -> Betti curves and persistence features
+    -> training-only ADF selection of fractional-differencing order
+    -> causal fractional differentiation (CUDA/CPU)
+    -> training-only class rebalancing
+    -> XGBoost with custom binary Focal Loss
+    -> chronological purge
+    -> out-of-sample metrics
+```
 
-The topological core is built on top of high-performance C++ backends wrapped in Python, distributed under the GNU AGPLv3 license.
+The production topology path uses Giotto-TDA. When Giotto-TDA is not installed, the application has an explicitly labelled exact small-cloud Vietoris-Rips fallback over GF(2) for local tests and smoke runs. It is not used when `--require-gtda` is supplied.
 
-### Installation
+## Repository layout
 
-The latest stable version requires:
-- Python (>= 3.7)
-- NumPy (>= 1.19.1)
-- SciPy (>= 1.5.0)
-- joblib (>= 0.16.0)
-- scikit-learn (>= 0.23.1)
-- pyflagser (>= 0.4.3)
-- python-igraph (>= 0.8.2)
+```text
+research/topology_lob/
+├── configs/                     Example and FI-2010 configurations
+├── cpp/                        C++ CPU implementation / benchmark
+├── cuda/                       CUDA kernel implementation
+├── docs/                       Experiment and real-data run notes
+├── scripts/                    FI-2010 conversion and benchmark tools
+├── tests/                      Unit and integration tests
+├── assets/                     Figures and run-output captures
+├── results/                    Result notes; generated run output is ignored
+├── run.py                      Command-line entry point
+├── topology_lob.py             Core pipeline
+├── fi2010.py                  FI-2010 loader / schema adapter
+├── pyproject.toml              Pinned Python environment
+└── requirements.txt            Pip requirements
+```
 
-The simplest way to install the topological toolkit is using `pip`:
+## Reproduce the project
+
+### 1. Get the code
 
 ```bash
-python -m pip install -U giotto-tda
-
+git clone https://github.com/SpryzenHell/topology_lob.git
+cd topology_lob/research/topology_lob
 ```
 
-If necessary, this will also automatically install all the above dependencies. Note: we recommend upgrading `pip` to a recent version as the above may fail on very old versions.
+### 2. Use a supported Python
 
-Pre-release, experimental builds containing recently added features, and/or bug fixes can be installed by running:
+The pinned environment targets Python 3.10-3.12. Python 3.11 is the recommended choice for the documented reproducibility path.
+
+Example with Python 3.11:
 
 ```bash
-python -m pip install -U giotto-tda-nightly
-
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
 ```
 
-The main difference between the nightly and the developer installation is that the former is shipped with pre-compiled wheels (similarly to the stable release) and hence does not require any C++ dependencies.
+On Windows PowerShell:
 
-### Testing
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+```
 
-After developer installation, you can launch the test suite from outside the source directory:
+### 3. Install the application
+
+For the complete TDA path and development tests:
 
 ```bash
-pytest gtda
-
+python -m pip install -e ".[tda,dev]"
 ```
 
----
+This installs the pinned numerical stack plus Giotto-TDA and pytest.
 
-## Part II: Focal Loss for Extreme Class Imbalance
-
-Volatility spikes and momentum ignition events occur in less than 2% of standard market microstructure data. Standard Log-Loss allows a model to achieve 98% accuracy by always predicting 0 (no event).
-
-We integrated topological features into a stacked XGBoost predictive engine utilizing a custom **Focal Loss** objective function: a loss function generalizing binary and multiclass cross-entropy loss that heavily penalizes hard-to-classify examples (liquidity voids) and weights rare events heavily.
-
-### Usage
-
-The `focal_loss` package provides functions and classes that can be used as off-the-shelf replacements for standard loss functions.
-
-```python
-# Typical API usage
-import tensorflow as tf
-from focal_loss import BinaryFocalLoss
-
-model = tf.keras.Model(...)
-model.compile(
-    optimizer=...,
-    loss=BinaryFocalLoss(gamma=2),  # Used here like a tf.keras loss
-    metrics=...,
-)
-history = model.fit(...)
-
-```
-
-The package includes the functions:
-
-* `binary_focal_loss`
-* `sparse_categorical_focal_loss`
-
-And wrapper classes:
-
-* `BinaryFocalLoss`
-* `SparseCategoricalFocalLoss`
-
-### Installation
-
-The package can be installed using the `pip` utility. For the latest version:
+### 4. Run the test suite
 
 ```bash
-pip install git+[https://github.com/artemmavrin/focal-loss.git](https://github.com/artemmavrin/focal-loss.git)
-
+python -m pytest -q
 ```
 
-Alternatively, install a recent release from PyPI:
+The tests cover L2 schema validation, fractional-difference weights, the exact small-cloud VR fallback, the custom Focal Loss derivatives, and FI-2010 column mapping.
+
+### 5. Run the end-to-end demo
 
 ```bash
-pip install focal-loss
-
+python run.py demo --config configs/demo.json --out results/demo --require-gtda
 ```
 
----
+The command creates:
 
-## Part III: Imbalanced-Learn Framework
+```text
+results/demo/
+├── metrics.json
+├── test_scores.csv
+├── betti_curves.png
+├── fractional_stationarity.png
+└── index.html
+```
 
-Most classification algorithms will only perform optimally when the number of samples of each class is roughly the same. Highly skewed datasets, where the minority is heavily outnumbered by one or more classes, have proven to be a challenge while at the same time becoming more and more common in Quantitative Finance.
+Open `results/demo/index.html` in a browser to inspect the run report.
 
-One way of addressing this issue is by re-sampling the dataset as to offset this imbalance with the hope of arriving at a more robust and fair decision boundary than you would otherwise.
+The demo uses deterministic synthetic L2 data. It is intended to exercise the complete code path and is not market data. Any performance number produced by this demo is engineering evidence only.
 
-### Dependencies
-
-This module requires the following dependencies:
-
-* Python (>= 3.10)
-* NumPy (>= 1.25.2)
-* SciPy (>= 1.11.4)
-* Scikit-learn (>= 1.4.2)
-* Pytest (>= 7.2.2)
-
-Additionally, it requires the following optional dependencies:
-
-* Pandas (>= 2.0.3) for dealing with dataframes
-* Tensorflow (>= 2.16.1) for dealing with TensorFlow models
-* Keras (>= 3.3.3) for dealing with Keras models
-
-### Installation
-
-It is currently available on the PyPi's repositories and you can install it via `pip`:
+### 6. Run the ablation and walk-forward checks
 
 ```bash
-pip install -U imbalanced-learn
-
+python run.py ablation --config configs/demo.json --out results/ablation
+python run.py walk-forward --config configs/demo.json --out results/walk_forward.json
+python run.py ffd-benchmark --events 200000 --width 256 --d 0.45
 ```
 
-The package is released also in Anaconda Cloud platform:
+These commands keep the same chronological feature/model construction and provide the basic comparison required by the project.
+
+## Real L2 data
+
+The application expects a CSV with one row per L2 snapshot:
+
+```text
+timestamp,
+bid_price_1,bid_size_1,ask_price_1,ask_size_1,
+...
+bid_price_N,bid_size_N,ask_price_N,ask_size_N
+```
+
+Before feature construction the loader:
+
+- parses timestamps as UTC;
+- sorts chronologically;
+- requires unique timestamps;
+- rejects missing/non-numeric L2 fields;
+- rejects negative depth;
+- rejects a locked or crossed best bid/ask.
+
+For a real run, use the exact TDA path:
 
 ```bash
-conda install -c conda-forge imbalanced-learn
-
+python run.py demo   --config configs/demo.json   --data /absolute/path/to/l2.csv   --out results/real_l2   --require-gtda
 ```
 
-If you prefer, you can clone it and run the setup.py file. Use the following commands to get a copy from Github and install all dependencies:
+For the CUDA fractional-differentiation path, also add `--require-cuda`. The command exits with an error if CUDA is requested but the GPU backend is not actually exercised.
+
+## FI-2010 benchmark
+
+FI-2010 support is included for a public high-frequency LOB benchmark. The benchmark is preprocessed/normalized and is not the original exchange feed. The project therefore treats FI-2010 as a benchmark input and keeps the raw-feed claim separate from it.
+
+The data record is documented separately in `research/topology_lob/DATA_GUIDE.md` and `research/topology_lob/docs/REAL_DATA_RUN.md`.
+
+Typical workflow:
 
 ```bash
-git clone [https://github.com/scikit-learn-contrib/imbalanced-learn.git](https://github.com/scikit-learn-contrib/imbalanced-learn.git)
-cd imbalanced-learn
-pip install .
+cd research/topology_lob
 
+python scripts/fetch_fi2010.py   --out data/external/fi2010.zip   --extract
+
+python scripts/run_fi2010_benchmark.py   --train data/external/fi2010/fi2010/Train_Dst_NoAuction_DecPre_CF_7.txt   --test     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_7.txt     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_8.txt     data/external/fi2010/fi2010/Test_Dst_NoAuction_DecPre_CF_9.txt   --tda-stride 1000   --require-gtda   --out results/fi2010_benchmark.json
 ```
 
-Be aware that you can install in developer mode with:
+Add `--require-cuda` when the fractional-differentiation GPU path is part of the run being verified.
+
+The benchmark code deliberately constructs forward-return labels separately inside train and each held-out test segment. This prevents an end-of-segment observation from receiving a target calculated from the next segment.
+
+## Reproducibility rules
+
+The repository follows these rules for reported results:
+
+1. The fractional-differencing order is selected from the training prefix only.
+2. The fractional-difference filter is causal.
+3. Class rebalancing is performed only after the training boundary is fixed.
+4. Model fitting never uses the held-out rows.
+5. Forward-return labels do not cross train/test or test-day boundaries.
+6. The held-out period is chronological and includes a purge gap.
+7. Focal Loss is compared with a standard XGBoost binary-logloss control on the same split and features.
+8. The value `0.064` is stored only as `target_resume_ic`; it is never substituted for a measured Information Coefficient.
+
+## Figures and run captures
+
+All figures below are generated from measured local runs or from deterministic data generated by the repository. No illustrative market-data images are used as results.
+
+### L2 snapshot used by the deterministic demo
+
+![Synthetic L2 snapshot](research/topology_lob/assets/figures/lob_snapshot.svg)
+
+### Vietoris-Rips Betti counts
+
+![Betti curves](research/topology_lob/assets/figures/betti_curves.svg)
+
+### Training-only stationarity selection
+
+![ADF selection](research/topology_lob/assets/figures/ffd_stationarity.svg)
+
+### Model comparison from the supported CI run
+
+![Model comparison](research/topology_lob/assets/figures/model_comparison.svg)
+
+### Standalone C++ benchmark
+
+![C++ benchmark](research/topology_lob/assets/figures/cpp_benchmark.svg)
+
+### Run report preview
+
+![Run report preview](research/topology_lob/assets/screenshots/report_preview.png)
+
+### Terminal run capture
+
+![Terminal run capture](research/topology_lob/assets/screenshots/terminal_demo_run.png)
+
+The assets directory documents the provenance of each figure and capture.
+
+The run captures are stored as raster PNGs with embedded standard fonts. This avoids browser font/rendering differences in GitHub's Markdown image renderer. The original SVG architecture diagrams are retained separately.
+
+### Extended experiment and data-analysis evidence
+
+![Experimental validation dashboard](research/topology_lob/assets/figures/experimental_validation_dashboard.png)
+
+![Robustness and correctness dashboard](research/topology_lob/assets/figures/robustness_dashboard.png)
+
+![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)
+
+![FI-2010 validation dashboard](research/topology_lob/assets/figures/fi2010_validation_dashboard.png)
+
+The evidence generator exercises a five-way feature/objective ablation, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, Focal Loss gradient/Hessian finite-difference checks, malformed-book rejection, price-translation invariance, causal fractional-differentiation invariance, and descriptive L2/topology diagnostics.
+
+Re-generate the evidence with:
 
 ```bash
-pip install --no-build-isolation --editable .
-
+python scripts/generate_evidence.py --events 6000 --out results/evidence
 ```
 
-### Testing
+On a supported environment with Giotto-TDA installed, add `--require-gtda` so the run fails closed rather than silently substituting the small-cloud fallback. The committed PNGs are a readable local validation snapshot; generated CI artifacts are the supported-environment execution record.
 
-After installation, you can use `pytest` to run the test suite:
+## Verified synthetic run
 
-```bash
-make coverage
+The current release-path integration run uses the deterministic synthetic generator and the supported Python 3.11 + Giotto-TDA environment. It verifies execution from input through feature construction, TDA, fractional differentiation and model evaluation.
 
-```
+| Item | Value |
+|---|---:|
+| Synthetic events | 6,000 |
+| Model rows | 5,735 |
+| Training rows | 3,994 |
+| Test rows | 1,721 |
+| Purge gap | 20 |
+| Topology clouds | 743 |
+| Selected d | 0.1 |
+| TDA backend | giotto-tda |
+| FFD backend | cpu-fallback:no-cuda |
+
+| Metric | Focal Loss | Log-loss control |
+|---|---:|---:|
+| Pearson IC | 0.073292 | 0.095368 |
+| Rank IC | 0.039856 | 0.036762 |
+| ROC-AUC | 0.531075 | 0.528676 |
+| PR-AUC | 0.244568 | 0.242809 |
+| Log loss | 0.516779 | 0.561761 |
+
+The current release-path validation was completed in GitHub Actions on Python 3.11.16 with the pinned stack and Giotto-TDA 0.6.2. The CPU runner had no CUDA device, so FFD used the explicit CPU fallback. The extended evidence artifact was uploaded successfully and the validated raster assets were then committed back to the branch.
+
+## CI validation record
+
+The supported-environment execution record is in `research/topology_lob/results/CI_VALIDATION.md`, and the extended numerical analysis is in `research/topology_lob/results/EXPERIMENTAL_VALIDATION.md`.
 
 
-## License
+The repository contains a deterministic synthetic integration result and a standalone C++ CPU benchmark so that the codebase has concrete execution evidence without inventing a market result.
 
-This project is licensed under the Pirate-Emperor License. See the [LICENSE](LICENSE) file for details.
+The historical resume target of OOS IC = 0.064 is a reproduction target only. It must be measured on the intended real L2 dataset before being described as an achieved result.
 
-## Author
+## Third-party code
 
-**Pirate-Emperor**
+The original project specification named:
 
-[![Twitter](https://skillicons.dev/icons?i=twitter)](https://twitter.com/PirateKingRahul)
-[![Discord](https://skillicons.dev/icons?i=discord)](https://discord.com/users/1200728704981143634)
-[![LinkedIn](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/piratekingrahul)
+- `giotto-ai/giotto-tda`
+- `artemmavrin/focal-loss`
+- `scikit-learn-contrib/imbalanced-learn`
 
-[![Reddit](https://img.shields.io/badge/Reddit-FF5700?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/u/PirateKingRahul)
-[![Medium](https://img.shields.io/badge/Medium-42404E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@piratekingrahul)
+The application layer uses the relevant public APIs and documents the upstream sources in `THIRD_PARTY.md`. It does not claim the project-specific orchestration code is part of those upstream repositories.
 
-- GitHub: [Pirate-Emperor](https://github.com/Pirate-Emperor)
-- Reddit: [PirateKingRahul](https://www.reddit.com/u/PirateKingRahul/)
-- Twitter: [PirateKingRahul](https://twitter.com/PirateKingRahul)
-- Discord: [PirateKingRahul](https://discord.com/users/1200728704981143634)
-- LinkedIn: [PirateKingRahul](https://www.linkedin.com/in/piratekingrahul)
-- Skype: [Join Skype](https://join.skype.com/invite/yfjOJG3wv9Ki)
-- Medium: [PirateKingRahul](https://medium.com/@piratekingrahul)
+## Notes
 
-Thank you for visiting this project!
-
----
+The real-data commands require access to the selected dataset files. Those data files are not committed to this repository. The fetch utility prints the archive SHA-256 so a run can be recorded with an explicit input checksum.

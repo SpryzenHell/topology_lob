@@ -204,3 +204,12 @@ doc/min_dependency_table.rst
 # Generated files
 doc/min_dependency_substitutions.rst
 doc/sg_execution_times.rst
+
+# Topology LOB application data and generated runs
+research/topology_lob/data/external/
+research/topology_lob/data/*.csv
+research/topology_lob/results/demo/
+research/topology_lob/results/ablation/
+research/topology_lob/results/*.json
+research/topology_lob/results/*.csv
+research/topology_lob/results/*.txt

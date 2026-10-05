@@ -1,0 +1,22 @@
+{
+  "seed": 2010,
+  "data_path": "data/FI2010_DecPre_train.csv",
+  "levels": 10,
+  "feature_depth": 5,
+  "tda_stride": 25,
+  "radii": [0.5, 1.0, 1.5, 2.0, 2.5],
+  "horizon": 10,
+  "label_threshold": 0.0005,
+  "test_fraction": 0.30,
+  "purge": 50,
+  "ffd_width": 256,
+  "candidate_d": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+  "adf_p": 0.05,
+  "focal_alpha": 0.75,
+  "focal_gamma": 2.0,
+  "oversample_target_ratio": 0.35,
+  "include_topology": true,
+  "include_fracdiff": true,
+  "require_gtda": true,
+  "tda_jobs": -1
+}
