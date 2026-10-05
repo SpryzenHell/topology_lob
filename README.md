@@ -227,7 +227,7 @@ The run captures are stored as raster PNGs with embedded standard fonts. This av
 
 ![Robustness and correctness dashboard](research/topology_lob/assets/figures/robustness_dashboard.png)
 
-![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)
+![Synthetic data diagnostics](research/topology_lob/assets/figures/data_diagnostics_dashboard.png)\n\n![FI-2010 validation dashboard](research/topology_lob/assets/figures/fi2010_validation_dashboard.png)
 
 The evidence generator exercises a five-way feature/objective ablation, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, Focal Loss gradient/Hessian finite-difference checks, malformed-book rejection, price-translation invariance, causal fractional-differentiation invariance, and descriptive L2/topology diagnostics.
 
