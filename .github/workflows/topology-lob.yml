@@ -90,7 +90,7 @@ jobs:
 
 
   refresh-assets:
-    if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/revamp/topology-lob-research'
     needs: python
     runs-on: ubuntu-latest
     defaults:
