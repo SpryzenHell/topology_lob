@@ -349,31 +349,43 @@ Add `--require-gtda` in the supported Python 3.10-3.12 environment to require th
 
 ## Current validation record
 
-The latest local integration validation used:
+The supported release-path validation was completed in GitHub Actions with Python 3.11.16, the pinned numerical stack, and Giotto-TDA 0.6.2.
 
 ```text
-6,000 synthetic L2 events
+6,000 deterministic synthetic L2 events
 5,735 model rows
 3,994 train rows
 1,721 test rows
 20-row purge
 743 topology clouds
 selected d: 0.1
-exact-vr-gf2-fallback
-CPU FFD fallback (no CUDA device in the validation environment)
+TDA: giotto-tda
+FFD: CPU fallback (no CUDA runner)
 ```
 
 Measured synthetic holdout metrics were:
 
 | Metric | Focal Loss | Log-loss control |
 |---|---:|---:|
-| Pearson IC | 0.120444 | 0.116689 |
-| Rank IC | 0.099255 | 0.104940 |
-| ROC-AUC | 0.579135 | 0.579952 |
+| Pearson IC | 0.073292 | 0.095368 |
+| Rank IC | 0.039856 | 0.036762 |
+| ROC-AUC | 0.531075 | 0.528676 |
 
-The local numerical snapshot was produced with Python 3.13, outside the project's declared Python 3.10-3.12 support range, using the explicit small-cloud TDA fallback and CPU FFD path. These numbers document an engineering execution; they are not a claim about live or historical market performance. The supported-environment CI run is the release-path check.
+These values are supported-environment engineering results, not a claim about live or historical market performance.
 
-The supported CI C++ benchmark measured 5,247,526 events/second for 200,000 events, width 256, d=0.45.
+The complete validation record is in `results/CI_VALIDATION.md` and `results/EXPERIMENTAL_VALIDATION.md`.
+
+## Extended experiment evidence
+
+The checked-in raster dashboards are generated from the supported CI evidence artifact. The suite includes five feature/objective variants, six synthetic seeds, five chronological walk-forward folds, a label-permutation placebo, numerical derivative checks for the custom Focal Loss objective, malformed-book rejection, price-translation invariance, and causal fractional-differentiation prefix invariance.
+
+The extended analysis is reproducible with:
+
+```bash
+python scripts/generate_evidence.py --events 6000 --out results/evidence
+```
+
+Use `--require-gtda` in the supported Python 3.10-3.12 environment to require the Giotto-TDA path explicitly.
 
 ## Resume metric
 
