@@ -13,6 +13,7 @@ EXPECTED = {
     "figures/experimental_validation_dashboard.png": None,
     "figures/robustness_dashboard.png": None,
     "figures/data_diagnostics_dashboard.png": None,
+    "figures/fi2010_validation_dashboard.png": None,
     "screenshots/report_preview.png": None,
     "screenshots/terminal_demo_run.png": None,
 }
