@@ -319,13 +319,13 @@ This figure records a training-prefix ADF candidate sweep on the same determinis
 
 ![Model comparison](assets/figures/model_comparison.svg)
 
-This chart uses the measured synthetic integration-run metrics recorded during repository validation. It is labelled as engineering validation rather than market evidence.
+This chart uses the supported Python 3.11 + Giotto-TDA synthetic validation run. It is labelled as engineering validation rather than market evidence.
 
 ### C++ benchmark
 
 ![C++ benchmark](assets/figures/cpp_benchmark.svg)
 
-This chart records the standalone C++ CPU benchmark used while validating the fractional-differentiation implementation.
+This chart records the supported CI standalone C++ CPU benchmark used while validating the fractional-differentiation implementation.
 
 ### Run report preview
 
@@ -373,7 +373,9 @@ Measured synthetic holdout metrics were:
 
 These values are supported-environment engineering results, not a claim about live or historical market performance.
 
-The complete validation record is in `results/CI_VALIDATION.md` and `results/EXPERIMENTAL_VALIDATION.md`.\n\nThe verified FI-2010 benchmark analysis is in `results/FI2010_VALIDATION.md`, with the corresponding figure in `assets/figures/fi2010_validation_dashboard.png`.
+The complete validation record is in `results/CI_VALIDATION.md` and `results/EXPERIMENTAL_VALIDATION.md`.
+
+The verified FI-2010 benchmark analysis is in `results/FI2010_VALIDATION.md`, with the corresponding figure in `assets/figures/fi2010_validation_dashboard.png`.
 
 ## Extended experiment evidence
 
